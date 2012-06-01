@@ -55,14 +55,18 @@
 #right_to_left()
 #hide_zero()
 #set_tab_color()
+#Border     Cell border       border          set_border()
+#               Bottom border     bottom          set_bottom()
 
 
 use strict;
 use lib "/s/sirsi/Perl/lib/perl5/site_perl/5.8.8";
 require Spreadsheet::WriteExcel;
 use vars qw/ %opt /;
+use Switch;
 
 my $excelFile   = "excel.xls";
+my $excelField  = "ggddgn";
 my $delim       = '\|';
 my $inputFile;
 my $colHeadings = "";
@@ -77,6 +81,11 @@ sub usage()
 This program take a pipe delimited input and turns it into a single sheet MS excel file.
 usage: $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
  -d delim  : changes the delimiter from the standard '|' pipe character.
+ -f "cols" : specifies the data types allowed for columns. Valid types are
+             'g'-general, 'd'-date, 'n'-number, 'u'-url. The default is
+             'g' so if a spreadsheet has data like |12|Andrew|1988/08/22|some text|
+             you can specify -f "ngdg" for each, but the last 'g' is not expressly
+             necessary.
  -i file   : specifies to take input from file rather than stdin.
  -o file   : writes the output to the argument file.
  -t heading: uses delimited sting as titles for the columns.
@@ -89,13 +98,14 @@ EOF
 sub init()
 {
     use Getopt::Std;
-    my $opt_string = 'd:i:o:t:x';
+    my $opt_string = 'd:f:i:o:t:x';
     getopts( "$opt_string", \%opt ) or usage();
     usage() if $opt{x};
     $delim       = $opt{'d'} if $opt{d};
     $colHeadings = $opt{'t'} if $opt{t};
     $inputFile   = $opt{'i'} if $opt{i};
     $excelFile   = $opt{'o'} if $opt{o};
+    $excelField  = $opt{'f'} if $opt{f};
 }
 
 #####
@@ -171,6 +181,7 @@ foreach (@lines)
     # row and column are zero indexed.
     my $colIndex = 0;
     my @coldata = split($delim, $_);
+	my @fieldTypes = split('', $excelField);
     foreach (@coldata)
     {
         if ($DEBUG)
@@ -181,7 +192,29 @@ foreach (@lines)
         # chomp still allows an extra char to make it through to the excel
         # file and it shows up as a box when it should be blank.
         chomp;
-        $worksheet->write($rowIndex, $colIndex, $_);
+		if (defined($fieldTypes[$colIndex]))
+		{
+			switch ($fieldTypes[$colIndex])
+			{
+				case "n"	{$worksheet->write_number($rowIndex, $colIndex, $_);}
+				case "d"	
+				{
+					my @date  = split('',$_);
+					my $year  = join('',@date[0..3]);
+					my $month = join('',@date[4..5]);
+					my $day   = join('',@date[6..7]);
+					$worksheet->write_date_time($rowIndex, $colIndex, "$year-$month-$day");
+				}
+				case "u"	{$worksheet->write_url($rowIndex, $colIndex, $_);}
+				case "s"	{$worksheet->write_string($rowIndex, $colIndex, $_);}
+				case "f"	{$worksheet->write_formula($rowIndex, $colIndex, $_);} # experimental
+				else		{$worksheet->write($rowIndex, $colIndex, $_);} # general
+			}
+		}
+		else
+		{
+			$worksheet->write($rowIndex, $colIndex, $_);
+		}
         $colIndex += 1;
     }
     $rowIndex++;
