@@ -5,3 +5,5 @@ git show-branch
 git status
 git checkout master
 git merge v2.0
+
+Last updated June 1, 2012.
