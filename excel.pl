@@ -14,6 +14,8 @@
 # Date:    April 10, 2012
 # Rev:     1.0 - develop
 #          1.1 - April 27, 2012 - Commments added.
+#          1.2 - June 21, 2012 - Cleaned up data input code, fixed warnings
+#          that were issued when NOT using '-f' flag.
 #
 ########################################################################
 
@@ -66,7 +68,7 @@ use vars qw/ %opt /;
 use Switch;
 
 my $excelFile   = "excel.xls";
-my $excelField  = "ggddgn";
+my $excelField;
 my $delim       = '\|';
 my $inputFile;
 my $colHeadings = "";
@@ -82,7 +84,7 @@ This program take a pipe delimited input and turns it into a single sheet MS exc
 usage: $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
  -d delim  : changes the delimiter from the standard '|' pipe character.
  -f "cols" : specifies the data types allowed for columns. Valid types are
-             'g'-general, 'd'-date, 'n'-number, 'u'-url. The default is
+             'g'-general, 'd'-date, 'n'-number, 'u'-url and 's'-string. The default is
              'g' so if a spreadsheet has data like |12|Andrew|1988/08/22|some text|
              you can specify -f "ngdg" for each, but the last 'g' is not expressly
              necessary.
@@ -101,11 +103,11 @@ sub init()
     my $opt_string = 'd:f:i:o:t:x';
     getopts( "$opt_string", \%opt ) or usage();
     usage() if $opt{x};
-    $delim       = $opt{'d'} if $opt{d};
-    $colHeadings = $opt{'t'} if $opt{t};
-    $inputFile   = $opt{'i'} if $opt{i};
-    $excelFile   = $opt{'o'} if $opt{o};
-    $excelField  = $opt{'f'} if $opt{f};
+    $delim       = $opt{'d'} if $opt{'d'};
+    $colHeadings = $opt{'t'} if $opt{'t'};
+    $inputFile   = $opt{'i'} if $opt{'i'};
+    $excelFile   = $opt{'o'} if $opt{'o'};
+    $excelField  = $opt{'f'} if $opt{'f'};
 }
 
 #####
@@ -147,15 +149,9 @@ if ($colHeadings ne "")
 #
 # Open the appropriate input stream.
 #
-if ($opt{i})
-{
-    open(IN, "<$inputFile");
-    @lines = <IN>;
-}
-else
-{
-    @lines = <STDIN>;
-}
+open(STDIN, "<$inputFile") if ($opt{i});
+@lines = <STDIN>;
+close(STDIN) if ($opt{i});
 
 if ($DEBUG)
 {
@@ -181,7 +177,8 @@ foreach (@lines)
     # row and column are zero indexed.
     my $colIndex = 0;
     my @coldata = split($delim, $_);
-	my @fieldTypes = split('', $excelField);
+	my @fieldTypes = ();
+	@fieldTypes = split('', $excelField) if (defined($excelField));
     foreach (@coldata)
     {
         if ($DEBUG)
@@ -220,4 +217,4 @@ foreach (@lines)
     $rowIndex++;
 }
 
-close(IN);
+1;

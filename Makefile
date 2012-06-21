@@ -1,9 +1,14 @@
 # copies most rescent files from eplapp for updating to git.
 SERVER=eplapp.library.ualberta.ca
 USER=sirsi
-REMOTE=/s/sirsi/Unicorn/EPLwork/anisbet/excel.pl
-LOCAL=/home/ilsdev/projects/excel/
+REMOTE=~/Unicorn/EPLwork/anisbet/
+LOCAL=~/projects/excel/
+APP=excel.pl
 
+put:
+	perl -c ${LOCAL}${APP}
+	scp ${LOCAL}${APP} ${USER}@${SERVER}:${REMOTE}
 get:
-	scp ${USER}@${SERVER}:${REMOTE} ${LOCAL}
-
+	scp ${USER}@${SERVER}:${REMOTE}${APP} ${LOCAL}
+test:
+	perl -c ${LOCAL}${APP}
