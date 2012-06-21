@@ -5,7 +5,7 @@ REMOTE=~/Unicorn/EPLwork/anisbet/
 LOCAL=~/projects/excel/
 APP=excel.pl
 
-put:
+put: test
 	perl -c ${LOCAL}${APP}
 	scp ${LOCAL}${APP} ${USER}@${SERVER}:${REMOTE}
 get:
