@@ -1,0 +1,9 @@
+The excel.pl file in this directory is version 2.0. Do a git status
+to check it. Once testing is done, merge the v2.0 branch back to the
+master with:
+git show-branch
+git status
+git checkout master
+git merge v2.0
+
+Last updated June 1, 2012.
