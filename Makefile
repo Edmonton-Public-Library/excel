@@ -6,7 +6,6 @@ LOCAL=~/projects/excel/
 APP=excel.pl
 
 put: test
-	perl -c ${LOCAL}${APP}
 	scp ${LOCAL}${APP} ${USER}@${SERVER}:${REMOTE}
 get:
 	scp ${USER}@${SERVER}:${REMOTE}${APP} ${LOCAL}

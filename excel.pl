@@ -16,6 +16,8 @@
 #          1.1 - April 27, 2012 - Commments added.
 #          1.2 - June 21, 2012 - Cleaned up data input code, fixed warnings
 #          that were issued when NOT using '-f' flag.
+#          2.0 - July 11, 2012 - Fixed bug that issued a warning when using
+#          -fn and the expected number is an empty string.
 #
 ########################################################################
 
@@ -73,15 +75,16 @@ my $delim       = '\|';
 my $inputFile;
 my $colHeadings = "";
 my $DEBUG       = 0;
-
+my $VERSION     = qq{2.0};
 #
 # Message about this program and how to use it
 #
 sub usage()
 {
     print STDERR << "EOF";
+	usage: $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
 This program take a pipe delimited input and turns it into a single sheet MS excel file.
-usage: $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
+Version $VERSION
  -d delim  : changes the delimiter from the standard '|' pipe character.
  -f "cols" : specifies the data types allowed for columns. Valid types are
              'g'-general, 'd'-date, 'n'-number, 'u'-url and 's'-string. The default is
@@ -193,7 +196,17 @@ foreach (@lines)
 		{
 			switch ($fieldTypes[$colIndex])
 			{
-				case "n"	{$worksheet->write_number($rowIndex, $colIndex, $_);}
+				case "n"
+				{
+					if ($_ eq "")
+					{
+						$worksheet->write($rowIndex, $colIndex, $_);
+					}
+					else
+					{
+						$worksheet->write_number($rowIndex, $colIndex, $_);
+					}
+				}
 				case "d"	
 				{
 					my @date  = split('',$_);
