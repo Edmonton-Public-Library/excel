@@ -7,3 +7,6 @@ git checkout master
 git merge v2.0
 
 Last updated June 1, 2012.
+
+TODO: Add column widths with '$MyWorkSheet->set_column(Col1, Col2, widthdesired);' 
+from http://www.justskins.com/forums/spreadsheet-writeexcel-column-width-16388.html
