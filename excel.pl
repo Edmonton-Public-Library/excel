@@ -12,7 +12,9 @@
 #
 # Author:  Andrew Nisbet
 # Date:    April 10, 2012
-# Rev:     1.0 - develop
+# Rev:     
+#          2.1 - June 3, 2013 - Fixed 0 date field to match excels handling (1900-01-00).
+#          1.0 - develop
 #          1.1 - April 27, 2012 - Commments added.
 #          1.2 - June 21, 2012 - Cleaned up data input code, fixed warnings
 #          that were issued when NOT using '-f' flag.
@@ -75,7 +77,7 @@ my $delim       = '\|';
 my $inputFile;
 my $colHeadings = "";
 my $DEBUG       = 0;
-my $VERSION     = qq{2.0};
+my $VERSION     = qq{2.1};
 #
 # Message about this program and how to use it
 #
@@ -210,6 +212,10 @@ foreach (@lines)
 				case "d"	
 				{
 					my @date  = split('',$_);
+					if (scalar(@date) != 8)
+					{
+						@date = ("1","9","0","0","0","1","0","0");
+					}
 					my $year  = join('',@date[0..3]);
 					my $month = join('',@date[4..5]);
 					my $day   = join('',@date[6..7]);
