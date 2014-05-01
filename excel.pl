@@ -236,4 +236,3 @@ foreach (@lines)
     $rowIndex++;
 }
 
-1;
