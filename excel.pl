@@ -13,6 +13,7 @@
 # Author:  Andrew Nisbet
 # Date:    April 10, 2012
 # Rev:     
+#          2.2 - June 5, 2014 - Added date field separator character selection.
 #          2.1 - June 3, 2013 - Fixed 0 date field to match excels handling (1900-01-00).
 #          1.0 - develop
 #          1.1 - April 27, 2012 - Commments added.
@@ -76,8 +77,9 @@ my $excelField;
 my $delim       = '\|';
 my $inputFile;
 my $colHeadings = "";
+my $DATE_DELIM  = "-";
 my $DEBUG       = 0;
-my $VERSION     = qq{2.1};
+my $VERSION     = qq{2.2};
 #
 # Message about this program and how to use it
 #
@@ -95,9 +97,13 @@ Version $VERSION
              necessary.
  -i file   : specifies to take input from file rather than stdin.
  -o file   : writes the output to the argument file.
+ -s char   : Alternate date field separator, like 1900/04/21. Default '-'.
  -t heading: uses delimited sting as titles for the columns.
  -x        : print help messages to stderr.
-example: $0 -d ',' -i 'c:/temp/file.txt' -o 'c:/temp/out.xls' -t 'Date,Cost,Tax,Total'
+example: 
+   $0 -d ',' -i 'c:/temp/file.txt' -o 'c:/temp/out.xls' -t 'Date,Cost,Tax,Total'
+   echo "1|22|333|20140605|" | $0 -otest.xls -fnnnd -s'/'
+   cat test.txt | $0 -o deleteme.xls -d"\\^"
 EOF
     exit;
 }
@@ -105,7 +111,7 @@ EOF
 sub init()
 {
     use Getopt::Std;
-    my $opt_string = 'd:f:i:o:t:x';
+    my $opt_string = 'd:f:i:o:s:t:x';
     getopts( "$opt_string", \%opt ) or usage();
     usage() if $opt{x};
     $delim       = $opt{'d'} if $opt{'d'};
@@ -113,6 +119,7 @@ sub init()
     $inputFile   = $opt{'i'} if $opt{'i'};
     $excelFile   = $opt{'o'} if $opt{'o'};
     $excelField  = $opt{'f'} if $opt{'f'};
+    $DATE_DELIM  = $opt{'s'} if $opt{'s'};
 }
 
 #####
@@ -219,7 +226,7 @@ foreach (@lines)
 					my $year  = join('',@date[0..3]);
 					my $month = join('',@date[4..5]);
 					my $day   = join('',@date[6..7]);
-					$worksheet->write_date_time($rowIndex, $colIndex, "$year-$month-$day");
+					$worksheet->write_date_time($rowIndex, $colIndex, "$year$DATE_DELIM$month$DATE_DELIM$day");
 				}
 				case "u"	{$worksheet->write_url($rowIndex, $colIndex, $_);}
 				case "s"	{$worksheet->write_string($rowIndex, $colIndex, $_);}
