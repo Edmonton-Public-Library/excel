@@ -98,7 +98,9 @@ Version $VERSION
              necessary.
  -i file   : specifies to take input from file rather than stdin.
  -o file   : writes the output to the argument file.
- -s char   : Alternate date field separator, like 1900/04/21. Default '-'.
+ -s char   : Alternate date field separator, like 1900/04/21. Default '-'. Note that 
+             Windows will coerce the separator to the local settings of the computer
+             that opens the spreadsheet for display.
  -t heading: uses delimited sting as titles for the columns.
  -x        : print help messages to stderr.
 example: 
