@@ -13,6 +13,7 @@
 # Author:  Andrew Nisbet
 # Date:    April 10, 2012
 # Rev:     
+#          2.3 - June 6, 2014 - Fix date output.
 #          2.2 - June 5, 2014 - Added date field separator character selection.
 #          2.1 - June 3, 2013 - Fixed 0 date field to match excels handling (1900-01-00).
 #          1.0 - develop
@@ -79,7 +80,7 @@ my $inputFile;
 my $colHeadings = "";
 my $DATE_DELIM  = "-";
 my $DEBUG       = 0;
-my $VERSION     = qq{2.2};
+my $VERSION     = qq{2.3};
 #
 # Message about this program and how to use it
 #
@@ -128,6 +129,7 @@ init();
 # Create a new Excel workbook
 my $workbook = Spreadsheet::WriteExcel->new($excelFile);
 my $headingFormat = $workbook->add_format(); # Add a format
+my $dateFormat = $workbook->add_format(num_format => 'yyyy'.$DATE_DELIM.'mm'.$DATE_DELIM.'dd'); # Date format if used
 $headingFormat->set_bold();
 $headingFormat->set_align('center');
 #$headingFormat->set_color('red');
@@ -226,7 +228,9 @@ foreach (@lines)
 					my $year  = join('',@date[0..3]);
 					my $month = join('',@date[4..5]);
 					my $day   = join('',@date[6..7]);
-					$worksheet->write_date_time($rowIndex, $colIndex, "$year$DATE_DELIM$month$DATE_DELIM$day");
+					# $worksheet->write_date_time($rowIndex, $colIndex, "$year$DATE_DELIM$month$DATE_DELIM$day");
+					my $dateString = sprintf "%4d-%02d-%02dT", $year, $month, $day;
+					$worksheet->write_date_time($rowIndex, $colIndex, $dateString, $dateFormat);
 				}
 				case "u"	{$worksheet->write_url($rowIndex, $colIndex, $_);}
 				case "s"	{$worksheet->write_string($rowIndex, $colIndex, $_);}
