@@ -1,18 +1,12 @@
 #!/usr/bin/perl -w
 ########################################################################
-# Purpose: Makes educated guess at which DISCARD cards to convert.
-# Method:  This script recommends candidate DISCARD cards based on user
-#          Take a pipe delimited file and turn it into an excel file.
-#          Currently only single page excel file output is supported.
-#          -i pipe delimited file path else take from stdin
-#          -t optional title for the first row
-#          -o name of the output file
-#          -d specific delimiter other than '|'
-#          -x help
+# Purpose: Converts Symphony output into excel spreadsheet automatically.
+# Method:  Perl library dependency.
 #
 # Author:  Andrew Nisbet
 # Date:    April 10, 2012
 # Rev:     
+#          2.3 - June 11, 2014 - Added to documentation prior to upload to community.
 #          2.3 - June 6, 2014 - Fix date output.
 #          2.2 - June 5, 2014 - Added date field separator character selection.
 #          2.1 - June 3, 2013 - Fixed 0 date field to match excels handling (1900-01-00).
@@ -68,7 +62,7 @@
 
 
 use strict;
-use lib "/s/sirsi/Perl/lib/perl5/site_perl/5.8.8";
+use lib "/s/sirsi/Perl/lib/perl5/site_perl/5.8.8"; # This is the standard install on our system you mileage may vary.
 require Spreadsheet::WriteExcel;
 use vars qw/ %opt /;
 use Switch;
@@ -80,15 +74,15 @@ my $inputFile;
 my $colHeadings = "";
 my $DATE_DELIM  = "-";
 my $DEBUG       = 0;
-my $VERSION     = qq{2.3};
+my $VERSION     = qq{2.4};
 #
 # Message about this program and how to use it
 #
 sub usage()
 {
     print STDERR << "EOF";
-	usage: $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
-This program take a pipe delimited input and turns it into a single sheet MS excel file.
+	usage: [[echo|cat] <api_output.txt> |] $0 [-d delimiter] [-i input] [-o file] [-t title row] [-x]
+This program takes delimited Symphony output from API and converts it into a MS excel file.
 Version $VERSION
  -d delim  : changes the delimiter from the standard '|' pipe character.
  -f "cols" : specifies the data types allowed for columns. Valid types are
